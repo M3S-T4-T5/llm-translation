@@ -5,11 +5,13 @@ import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 import logging
+
 from utils.language_utils import is_english, translate_text
 from utils.llm import LLM_Client
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.disable(logging.CRITICAL) # Uncomment to disable logging
 
 def process_row(row, llm_client):
     def translate_if_needed(text, llm_client):
@@ -42,7 +44,7 @@ def process_parquet_file(file_path, llm_client):
     logging.info(f"Processing file: {file_path}")
     
     # Process each row with concurrency
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=30) as executor:
         rows = list(tqdm(executor.map(lambda row: process_row(row, llm_client), [row for _, row in df.iterrows()]), total=len(df)))
 
     processed_df = pd.DataFrame(rows)
